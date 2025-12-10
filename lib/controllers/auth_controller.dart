@@ -124,7 +124,12 @@ class AuthController extends GetxController {
         ? Get.find<NotificationController>().fcmToken.value
         : '';
     if (token.isNotEmpty) {
-      await _fcmService.deleteToken(token);
+      try {
+        await _fcmService.deleteToken(token);
+      } catch (e) {
+        // ignore: avoid_print
+        print('Delete FCM token failed: $e');
+      }
     }
     await _client.auth.signOut();
     Get.offAllNamed('/home');
@@ -149,11 +154,16 @@ class AuthController extends GetxController {
     if (_user.value == null) return;
     final token = Get.find<NotificationController>().fcmToken.value;
     if (token.isEmpty) return;
-    await _fcmService.upsertToken(
-      userId: _user.value!.id,
-      token: token,
-      role: _user.value?.appMetadata['role']?.toString(),
-    );
+    try {
+      await _fcmService.upsertToken(
+        userId: _user.value!.id,
+        token: token,
+        role: _user.value?.appMetadata['role']?.toString(),
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('Sync FCM token failed: $e');
+    }
   }
 
   @override

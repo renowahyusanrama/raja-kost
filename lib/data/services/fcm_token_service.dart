@@ -11,16 +11,24 @@ class FcmTokenService {
     String? role,
   }) async {
     if (token.isEmpty) return;
-
-    await _client.from('fcm_tokens').upsert(
-      {
-        'user_id': userId,
-        'token': token,
-        'role': role,
-        'updated_at': DateTime.now().toIso8601String(),
-      },
-      onConflict: 'token',
-    );
+    try {
+      await _client.from('fcm_tokens').upsert(
+        {
+          'user_id': userId,
+          'token': token,
+          'role': role,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        onConflict: 'token',
+      );
+      // Debug log
+      // ignore: avoid_print
+      print('FCM token upserted for $userId, role=$role');
+    } catch (e) {
+      // ignore: avoid_print
+      print('FCM upsert error: $e');
+      rethrow;
+    }
   }
 
   /// Hapus token tertentu (opsional saat logout).

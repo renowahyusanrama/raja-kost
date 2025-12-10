@@ -77,17 +77,28 @@ class ReportController extends GetxController {
     try {
       final user = _client.auth.currentUser;
       final email = user?.email ?? _auth.user?.email;
-      await _client.from('reports').insert({
+      final inserted = await _client.from('reports').insert({
         'subject': subject,
         'message': message,
         'category': category.isEmpty ? null : category,
         'status': 'open',
         'user_id': user?.id,
         'user_email': email,
-      });
+      }).select('id').maybeSingle();
       subjectTextCtrl.clear();
       messageTextCtrl.clear();
       categoryTextCtrl.clear();
+      if (inserted != null && inserted['id'] != null) {
+        // Trigger notifikasi admin
+        try {
+          await _client.functions.invoke(
+            'report-notifier',
+            body: {'type': 'new', 'reportId': inserted['id']},
+          );
+        } catch (_) {
+          // Abaikan error notifikasi, tidak memblokir submit
+        }
+      }
       await fetchReports();
       Get.snackbar(
         'Terkirim',

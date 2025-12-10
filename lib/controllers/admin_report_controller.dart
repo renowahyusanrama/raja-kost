@@ -65,6 +65,15 @@ class AdminReportController extends GetxController {
         'status': status,
         if (adminNote != null && adminNote.isNotEmpty) 'admin_note': adminNote,
       }).eq('id', r.id);
+      // Trigger notifikasi user pemilik laporan
+      try {
+        await _client.functions.invoke(
+          'report-notifier',
+          body: {'type': 'status', 'reportId': r.id, 'status': status},
+        );
+      } catch (_) {
+        // Abaikan error notifikasi agar UI tetap lanjut
+      }
       await fetchReports(status: filterStatus.value);
     } catch (e) {
       Get.snackbar(

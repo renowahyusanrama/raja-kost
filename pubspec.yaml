@@ -1,0 +1,49 @@
+name: raja_kost
+description: Aplikasi pencarian kost modern dengan animasi kompleks.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  get: ^4.6.6
+  dio: ^5.4.0
+  cached_network_image: ^3.3.1
+  intl: ^0.20.2
+  supabase_flutter: ^2.5.6
+  flutter_dotenv: ^5.1.0
+  geolocator: ^10.1.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  http: ^1.1.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/kamar-ac.jpg
+    - assets/images/kamar-deluxe.jpg  
+    - assets/images/kamar-single-fan.jpg
+    - assets/icon/crown.png
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
+  web:
+    generate: true
+    image_path: "assets/icon/app_icon.png"

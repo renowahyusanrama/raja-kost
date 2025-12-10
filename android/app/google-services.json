@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "873228329832",
+    "project_id": "raja-kost-44fc8",
+    "storage_bucket": "raja-kost-44fc8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:873228329832:android:fcc7a1f927381d42e62cdd",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqsCqCTLoGBVnC7Qsq8jmhh9XvvV_25bc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

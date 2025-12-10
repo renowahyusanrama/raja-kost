@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../data/services/fcm_token_service.dart';
+import 'notification_controller.dart';
 
 class AuthController extends GetxController {
   final Rxn<User> _user = Rxn<User>();
@@ -12,6 +17,8 @@ class AuthController extends GetxController {
       _user.value?.appMetadata['role']?.toString().toLowerCase() == 'admin';
 
   SupabaseClient get _client => Supabase.instance.client;
+  final FcmTokenService _fcmService = FcmTokenService();
+  StreamSubscription<String>? _fcmTokenSub;
 
   @override
   void onInit() {
@@ -19,7 +26,9 @@ class AuthController extends GetxController {
     _user.value = _client.auth.currentUser;
     _client.auth.onAuthStateChange.listen((data) {
       _user.value = data.session?.user;
+      _syncFcmToken();
     });
+    _listenFcmTokenChanges();
   }
 
   Future<void> register(String email, String password) async {
@@ -88,6 +97,7 @@ class AuthController extends GetxController {
       await action();
       if (_client.auth.currentUser != null) {
         Get.offAllNamed('/home');
+        await _syncFcmToken();
       }
     } on AuthException catch (e) {
       errorMessage.value = e.message;
@@ -110,7 +120,45 @@ class AuthController extends GetxController {
   }
 
   Future<void> logout() async {
+    final token = Get.isRegistered<NotificationController>()
+        ? Get.find<NotificationController>().fcmToken.value
+        : '';
+    if (token.isNotEmpty) {
+      await _fcmService.deleteToken(token);
+    }
     await _client.auth.signOut();
     Get.offAllNamed('/home');
+  }
+
+  void _listenFcmTokenChanges() {
+    if (!Get.isRegistered<NotificationController>()) return;
+    final notif = Get.find<NotificationController>();
+    _fcmTokenSub = notif.fcmToken.stream.listen((token) {
+      if (token.isNotEmpty && _user.value != null) {
+        _fcmService.upsertToken(
+          userId: _user.value!.id,
+          token: token,
+          role: _user.value?.appMetadata['role']?.toString(),
+        );
+      }
+    });
+  }
+
+  Future<void> _syncFcmToken() async {
+    if (!Get.isRegistered<NotificationController>()) return;
+    if (_user.value == null) return;
+    final token = Get.find<NotificationController>().fcmToken.value;
+    if (token.isEmpty) return;
+    await _fcmService.upsertToken(
+      userId: _user.value!.id,
+      token: token,
+      role: _user.value?.appMetadata['role']?.toString(),
+    );
+  }
+
+  @override
+  void onClose() {
+    _fcmTokenSub?.cancel();
+    super.onClose();
   }
 }

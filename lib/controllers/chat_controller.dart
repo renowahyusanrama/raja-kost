@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/material.dart';
 
 import '../data/models/chat_message_model.dart';
 import '../data/models/chat_thread_model.dart';
@@ -19,6 +19,7 @@ class ChatController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString inputText = ''.obs;
   final TextEditingController textCtrl = TextEditingController();
+  final RxInt unreadCount = 0.obs;
 
   StreamSubscription<dynamic>? _sub;
 
@@ -62,13 +63,33 @@ class ChatController extends GetxController {
     if (th == null) return;
     final data = await _service.fetchMessages(th.id);
     messages.assignAll(data);
+    await _markRead();
+    _computeUnread();
   }
 
   void _listen(String chatId) {
     _sub?.cancel();
     _sub = _service.subscribeMessages(chatId, (msgs) {
       messages.assignAll(msgs);
-    }) as StreamSubscription<List<ChatMessage>>?;
+      _markRead();
+      _computeUnread();
+    });
+  }
+
+  void _computeUnread() {
+    final currentUserId = _client.auth.currentUser?.id;
+    if (currentUserId == null) return;
+    final count = messages
+        .where((m) => m.senderId != currentUserId && !m.isRead)
+        .length;
+    unreadCount.value = count;
+  }
+
+  Future<void> _markRead() async {
+    final th = thread.value;
+    final currentUserId = _client.auth.currentUser?.id;
+    if (th == null || currentUserId == null) return;
+    await _service.markRead(chatId: th.id, currentUserId: currentUserId);
   }
 
   Future<void> sendMessage() async {

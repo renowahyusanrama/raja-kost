@@ -24,10 +24,26 @@ class AdminChatListPage extends StatelessWidget {
           itemCount: c.threads.length,
           itemBuilder: (_, i) {
             final t = c.threads[i];
+            final unread = c.unreadCounts[t.id] ?? 0;
             return ListTile(
               leading: const Icon(Icons.chat_bubble_outline),
               title: Text('User ${t.userId.substring(0, 8)}'),
               subtitle: Text(t.createdAt.toLocal().toString()),
+              trailing: unread > 0
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        '$unread',
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w700),
+                      ),
+                    )
+                  : null,
               onTap: () {
                 // buka chat detail sebagai admin dengan chatId specific
                 Get.to(() => const ChatPage(), arguments: {'chatId': t.id});

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../controllers/home_controller.dart';
 import '../../../controllers/catalog_dio_controller.dart';
+import '../../../controllers/auth_controller.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../ui/shared/widgets/custom_app_bar.dart';
 import '../../../ui/shared/widgets/loading_widget.dart';
@@ -23,6 +24,7 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     final catalogController = Get.find<CatalogDioController>();
+    final auth = Get.find<AuthController>();
 
     return Scaffold(
       backgroundColor: Get.theme.scaffoldBackgroundColor,
@@ -36,6 +38,39 @@ class HomeView extends GetView<HomeController> {
                   title: 'Raja Kost',
                   subtitle: 'Kost Impian Anak UMM',
                   leading: const AppOverflowMenu(),
+                  actions: [
+                    GestureDetector(
+                      onTap: () {
+                        if (auth.isAdmin) {
+                          Get.toNamed('/admin/chats');
+                        } else {
+                          if (!auth.isLoggedIn) {
+                            Get.toNamed('/login');
+                            return;
+                          }
+                          Get.toNamed('/chat');
+                        }
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.cardBackground,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: Get.isDarkMode ? 0.18 : 0.07,
+                              ),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.chat_bubble_outline),
+                      ),
+                    ),
+                  ],
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),

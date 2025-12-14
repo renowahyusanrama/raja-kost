@@ -13,7 +13,30 @@ class ChatPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat dengan Admin'),
+        title: Obx(() {
+          final unread = c.unreadCount.value;
+          return Row(
+            children: [
+              const Text('Chat dengan Admin'),
+              if (unread > 0) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '$unread',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ]
+            ],
+          );
+        }),
       ),
       body: SafeArea(
         child: Column(
@@ -27,7 +50,8 @@ class ChatPage extends StatelessWidget {
                 if (msgs.isEmpty) {
                   return const Center(child: Text('Belum ada pesan'));
                 }
-                final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+                final currentUserId =
+                    Supabase.instance.client.auth.currentUser?.id;
                 return ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: msgs.length,
@@ -53,7 +77,10 @@ class ChatPage extends StatelessWidget {
                 );
               }),
             ),
-            _InputBar(controller: c),
+            Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+              child: _InputBar(controller: c),
+            ),
           ],
         ),
       ),
@@ -70,10 +97,9 @@ class _InputBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Row(
-        children: [
-          Expanded(
-            child: Obx(() {
-              return TextField(
+          children: [
+            Expanded(
+              child: TextField(
                 decoration: const InputDecoration(
                   hintText: 'Tulis pesan...',
                   border: OutlineInputBorder(),
@@ -81,13 +107,12 @@ class _InputBar extends StatelessWidget {
                 ),
                 controller: controller.textCtrl,
                 onChanged: (v) => controller.inputText.value = v,
-              );
-            }),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: controller.sendMessage,
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.send),
+              onPressed: controller.sendMessage,
           ),
         ],
       ),

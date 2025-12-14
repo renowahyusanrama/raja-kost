@@ -12,6 +12,7 @@ class AdminChatListController extends GetxController {
 
   final RxList<ChatThread> threads = <ChatThread>[].obs;
   final RxBool isLoading = false.obs;
+  final RxMap<String, int> unreadCounts = <String, int>{}.obs;
 
   StreamSubscription<dynamic>? _sub;
 
@@ -19,6 +20,7 @@ class AdminChatListController extends GetxController {
   void onInit() {
     super.onInit();
     fetchThreads();
+    _loadUnread();
     _listenThreads();
   }
 
@@ -33,9 +35,17 @@ class AdminChatListController extends GetxController {
     try {
       final data = await _service.fetchThreadsForAdmin();
       threads.assignAll(data);
+      await _loadUnread();
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> _loadUnread() async {
+    final currentUserId = _client.auth.currentUser?.id;
+    if (currentUserId == null) return;
+    final map = await _service.fetchUnreadCounts(currentUserId);
+    unreadCounts.assignAll(map);
   }
 
   void _listenThreads() {
@@ -48,6 +58,7 @@ class AdminChatListController extends GetxController {
               .map((e) => ChatThread.fromMap(Map<String, dynamic>.from(e)))
               .toList();
           threads.assignAll(list);
-        }) as StreamSubscription<List<ChatThread>>?;
+          _loadUnread();
+        });
   }
 }

@@ -82,7 +82,33 @@ class ChatService {
     }
   }
 
-  StreamSubscription<SupabaseStreamEvent> subscribeMessages(
+  Future<void> markRead({
+    required String chatId,
+    required String currentUserId,
+  }) async {
+    await _client
+        .from('chat_messages')
+        .update({'is_read': true})
+        .eq('chat_id', chatId)
+        .neq('sender_id', currentUserId)
+        .eq('is_read', false);
+  }
+
+  Future<Map<String, int>> fetchUnreadCounts(String currentUserId) async {
+    final resp = await _client
+        .from('chat_messages')
+        .select('chat_id')
+        .eq('is_read', false)
+        .neq('sender_id', currentUserId);
+    final map = <String, int>{};
+    for (final row in resp as List<dynamic>) {
+      final chatId = row['chat_id'] as String;
+      map[chatId] = (map[chatId] ?? 0) + 1;
+    }
+    return map;
+  }
+
+  StreamSubscription<dynamic> subscribeMessages(
     String chatId,
     void Function(List<ChatMessage>) onData,
   ) {
@@ -91,11 +117,11 @@ class ChatService {
         .stream(primaryKey: ['id'])
         .eq('chat_id', chatId)
         .order('created_at')
-        .listen((List<Map<String, dynamic>> rows) {
-          final msgs = rows
-              .map((e) => ChatMessage.fromMap(Map<String, dynamic>.from(e)))
-              .toList();
-          onData(msgs);
-        });
+        .listen((rows) {
+      final msgs = rows
+          .map((e) => ChatMessage.fromMap(Map<String, dynamic>.from(e)))
+          .toList();
+      onData(msgs);
+    });
   }
 }

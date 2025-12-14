@@ -126,6 +126,22 @@ class PaymentController extends GetxController {
         'final_price': finalPrice,
       });
 
+      // Trigger notif ke admin (via Edge Function)
+      try {
+        await _client.functions.invoke(
+          'report-notifier',
+          body: {
+            'type': 'payment',
+            'serviceName': service.name,
+            'finalPrice': finalPrice,
+            'roomCode': roomCode,
+            'roomType': roomType,
+          },
+        );
+      } catch (_) {
+        // abaikan error notif agar proses bayar tetap lanjut
+      }
+
       Get.snackbar(
         'Pembayaran',
         'Booking ${service.name} berhasil disimpan',

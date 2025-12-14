@@ -12,6 +12,8 @@ enum _MenuAction {
   admin,
   report,
   adminReports,
+  chatUser,
+  chatAdmin,
   auth,
 }
 
@@ -150,6 +152,24 @@ class AppOverflowMenu extends StatelessWidget {
           );
         }
         break;
+      case _MenuAction.chatUser:
+        if (!auth.isLoggedIn) {
+          Get.toNamed('/login');
+          return;
+        }
+        Get.toNamed('/chat');
+        break;
+      case _MenuAction.chatAdmin:
+        if (auth.isAdmin) {
+          Get.toNamed('/admin/chats');
+        } else {
+          Get.snackbar(
+            'Akses ditolak',
+            'Hanya admin yang dapat membuka daftar chat.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+        break;
       case _MenuAction.auth:
         if (auth.isLoggedIn) {
           Get.defaultDialog(
@@ -256,18 +276,27 @@ class _MenuSidePanel extends StatelessWidget {
                           title: 'Admin',
                           subtitle: 'Kelola kamar & penugasan',
                           onTap: () => onSelected(_MenuAction.admin),
-                        ),
-                      _MenuItem(
-                        icon: Icons.feedback_outlined,
-                        title: 'Laporan',
-                        subtitle: 'Kirim laporan & keluhan',
-                        onTap: () => onSelected(_MenuAction.report),
-                      ),
-                      if (auth.isAdmin)
-                        _MenuItem(
-                          icon: Icons.mark_chat_read_outlined,
-                          title: 'Laporan Admin',
-                          subtitle: 'Lihat semua laporan user',
+              ),
+              _MenuItem(
+                icon: Icons.feedback_outlined,
+                title: 'Laporan',
+                subtitle: 'Kirim laporan & keluhan',
+                onTap: () => onSelected(_MenuAction.report),
+              ),
+              _MenuItem(
+                icon: Icons.chat_outlined,
+                title: 'Chat Admin',
+                subtitle: auth.isAdmin
+                    ? 'Buka daftar chat user'
+                    : 'Chat privat dengan admin',
+                onTap: () => onSelected(
+                    auth.isAdmin ? _MenuAction.chatAdmin : _MenuAction.chatUser),
+              ),
+              if (auth.isAdmin)
+                _MenuItem(
+                  icon: Icons.mark_chat_read_outlined,
+                  title: 'Laporan Admin',
+                  subtitle: 'Lihat semua laporan user',
                           onTap: () => onSelected(_MenuAction.adminReports),
                         ),
                       _MenuItem(

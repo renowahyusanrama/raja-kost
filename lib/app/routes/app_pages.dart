@@ -23,6 +23,8 @@ import '../../ui/pages/reports/report_view.dart';
 import '../../ui/pages/admin/admin_report_view.dart';
 import '../../controllers/location_experiment_controller.dart';
 import '../../ui/pages/location/location_experiment_view.dart';
+import '../../ui/pages/chat/chat_page.dart';
+import '../../ui/pages/chat/admin_chat_list_page.dart';
 
 class AppPages {
   AppPages._();
@@ -132,6 +134,18 @@ class AppPages {
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 300),
     ),
+    GetPage(
+      name: _Paths.chat,
+      page: () => const ChatPage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: _Paths.adminChats,
+      page: () => const AdminChatListPage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
   ];
 }
 
@@ -149,4 +163,6 @@ abstract class _Paths {
   static const String report = '/report';
   static const String adminReports = '/admin/reports';
   static const String locationLab = '/location-lab';
+  static const String chat = '/chat';
+  static const String adminChats = '/admin/chats';
 }

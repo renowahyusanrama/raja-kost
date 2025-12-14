@@ -79,12 +79,8 @@ class _InputBar extends StatelessWidget {
                   border: OutlineInputBorder(),
                   isDense: true,
                 ),
+                controller: controller.textCtrl,
                 onChanged: (v) => controller.inputText.value = v,
-                controller: TextEditingController()
-                  ..text = controller.inputText.value
-                  ..selection = TextSelection.fromPosition(
-                    TextPosition(offset: controller.inputText.value.length),
-                  ),
               );
             }),
           ),

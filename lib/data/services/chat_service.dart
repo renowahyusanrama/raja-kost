@@ -91,7 +91,7 @@ class ChatService {
         .stream(primaryKey: ['id'])
         .eq('chat_id', chatId)
         .order('created_at')
-        .listen((rows) {
+        .listen((List<Map<String, dynamic>> rows) {
           final msgs = rows
               .map((e) => ChatMessage.fromMap(Map<String, dynamic>.from(e)))
               .toList();

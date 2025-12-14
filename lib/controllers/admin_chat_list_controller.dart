@@ -13,7 +13,7 @@ class AdminChatListController extends GetxController {
   final RxList<ChatThread> threads = <ChatThread>[].obs;
   final RxBool isLoading = false.obs;
 
-  StreamSubscription<List<ChatThread>>? _sub;
+  StreamSubscription<dynamic>? _sub;
 
   @override
   void onInit() {

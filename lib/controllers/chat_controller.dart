@@ -20,7 +20,7 @@ class ChatController extends GetxController {
   final RxString inputText = ''.obs;
   final TextEditingController textCtrl = TextEditingController();
 
-  StreamSubscription<List<ChatMessage>>? _sub;
+  StreamSubscription<dynamic>? _sub;
 
   @override
   void onInit() {

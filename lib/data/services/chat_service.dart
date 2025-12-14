@@ -51,7 +51,7 @@ class ChatService {
         .from('chat_messages')
         .select()
         .eq('chat_id', chatId)
-        .order('created_at');
+        .order('created_at', ascending: true);
     return (resp as List<dynamic>)
         .map((e) => ChatMessage.fromMap(Map<String, dynamic>.from(e)))
         .toList();
@@ -116,12 +116,12 @@ class ChatService {
         .from('chat_messages')
         .stream(primaryKey: ['id'])
         .eq('chat_id', chatId)
-        .order('created_at')
+        .order('created_at', ascending: true)
         .listen((rows) {
-      final msgs = rows
-          .map((e) => ChatMessage.fromMap(Map<String, dynamic>.from(e)))
-          .toList();
-      onData(msgs);
-    });
+          final msgs = rows
+              .map((e) => ChatMessage.fromMap(Map<String, dynamic>.from(e)))
+              .toList();
+          onData(msgs);
+        });
   }
 }

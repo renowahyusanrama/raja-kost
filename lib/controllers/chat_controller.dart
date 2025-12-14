@@ -20,6 +20,7 @@ class ChatController extends GetxController {
   final RxString inputText = ''.obs;
   final TextEditingController textCtrl = TextEditingController();
   final RxInt unreadCount = 0.obs;
+  final RxBool autoScrollPending = false.obs;
 
   StreamSubscription<dynamic>? _sub;
 
@@ -62,7 +63,9 @@ class ChatController extends GetxController {
     final th = thread.value;
     if (th == null) return;
     final data = await _service.fetchMessages(th.id);
+    // simpan urut paling lama -> terbaru (untuk ditampilkan lama di atas)
     messages.assignAll(data);
+    autoScrollPending.value = true;
     await _markRead();
     _computeUnread();
   }
@@ -70,7 +73,9 @@ class ChatController extends GetxController {
   void _listen(String chatId) {
     _sub?.cancel();
     _sub = _service.subscribeMessages(chatId, (msgs) {
+      // realtime: terima data urut lama -> baru
       messages.assignAll(msgs);
+      autoScrollPending.value = true;
       _markRead();
       _computeUnread();
     });
@@ -79,9 +84,8 @@ class ChatController extends GetxController {
   void _computeUnread() {
     final currentUserId = _client.auth.currentUser?.id;
     if (currentUserId == null) return;
-    final count = messages
-        .where((m) => m.senderId != currentUserId && !m.isRead)
-        .length;
+    final count =
+        messages.where((m) => m.senderId != currentUserId && !m.isRead).length;
     unreadCount.value = count;
   }
 
